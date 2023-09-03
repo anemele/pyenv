@@ -1,9 +1,8 @@
-use super::utils;
-use clap::Parser;
-use commands::Commands;
+use std::path::Path;
 
-mod commands;
-mod parser;
+use crate::commands::{self, Commands};
+use crate::utils;
+use clap::Parser;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about=None)]
@@ -19,19 +18,31 @@ pub fn run() {
     if !utils::exists(&venv_path) {
         return;
     }
+    let venv_root = Path::new(&venv_path);
 
     let cli = Cli::parse();
     // println!("JAVA Home: {:?}", cli.path);
     match &cli.command {
-        Commands::Add { name, version } => {
-            commands::add(name, version);
+        Commands::Add { name } => {
+            let vp = venv_root.join(name);
+            commands::create(&vp);
         }
-        Commands::Ls => commands::ls(&venv_path),
+        Commands::Ls => commands::list(&venv_path),
         Commands::Rm { name } => {
-            commands::rm(name);
+            let vp = venv_root.join(name);
+            if !vp.exists() {
+                eprintln!("No env `{name}` exists.")
+            } else {
+                commands::remove(&vp, name);
+            }
         }
         Commands::Env { name } => {
-            commands::env(name);
+            let vp = venv_root.join(name);
+            if !vp.exists() {
+                eprintln!("No env `{name}` exists.")
+            } else {
+                commands::activate(&vp);
+            }
         }
     }
 }
