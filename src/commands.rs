@@ -1,5 +1,6 @@
 use clap::Subcommand;
 use std::fs;
+use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
@@ -24,6 +25,12 @@ pub fn create(path: &Path) {
         .expect("Failed to create new env");
     let output_str = String::from_utf8_lossy(&output.stdout);
     println!("{output_str}");
+    // create idle.bat file
+    if path.exists() {
+        let idle = path.join("Scripts/idle.bat");
+        let mut file = fs::File::create(idle).unwrap();
+        let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %* \n");
+    }
 }
 
 pub fn remove(path: &Path, name: &String) {
