@@ -14,7 +14,7 @@ pub enum Commands {
     Env { name: String },
 }
 
-pub fn create(path: &Path) {
+pub fn create(path: &Path, _: &String) {
     let output = Command::new("virtualenv")
         .arg(path.as_os_str())
         .arg("--activators")
@@ -29,11 +29,15 @@ pub fn create(path: &Path) {
     if path.exists() {
         let idle = path.join("Scripts/idle.bat");
         let mut file = fs::File::create(idle).unwrap();
-        let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %* \n");
+        let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
     }
 }
 
 pub fn remove(path: &Path, name: &String) {
+    if !utils::is_valid_env(path) {
+        eprintln!("Invalid env `{name}`");
+        return;
+    }
     match fs::remove_dir_all(path) {
         Ok(_) => println!("Removed env `{name}`"),
         Err(_) => println!("Failed to remove `{name}`"),
@@ -56,7 +60,11 @@ pub fn list(path: &String) {
     }
 }
 
-pub fn activate(path: &Path) {
+pub fn activate(path: &Path, name: &String) {
+    if !utils::is_valid_env(path) {
+        eprintln!("Invalid env `{name}`");
+        return;
+    }
     let _ = Command::new("cmd")
         .arg("/c")
         .arg("start cmd /k")

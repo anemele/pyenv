@@ -25,7 +25,11 @@ pub fn run() {
     match &cli.command {
         Commands::Add { name } => {
             let vp = venv_root.join(name);
-            commands::create(&vp);
+            if vp.is_file() {
+                eprintln!("File with the same name exists.")
+            } else {
+                commands::create(&vp, name);
+            }
         }
         Commands::Ls => commands::list(&venv_path),
         Commands::Rm { name } => {
@@ -41,7 +45,7 @@ pub fn run() {
             if !vp.exists() {
                 eprintln!("No env `{name}` exists.")
             } else {
-                commands::activate(&vp);
+                commands::activate(&vp, name);
             }
         }
     }
