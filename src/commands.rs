@@ -3,6 +3,8 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+use crate::utils;
+
 #[derive(Subcommand)]
 pub enum Commands {
     Add { name: String },
@@ -27,7 +29,7 @@ pub fn create(path: &Path) {
 pub fn remove(path: &Path, name: &String) {
     match fs::remove_dir_all(path) {
         Ok(_) => println!("Removed env `{name}`"),
-        Err(_) => println!("Failed to remove {name}"),
+        Err(_) => println!("Failed to remove `{name}`"),
     };
 }
 
@@ -36,10 +38,14 @@ pub fn list(path: &String) {
 
     println!("Available envs:");
     for path in paths {
-        println!(
-            "  {}",
-            path.unwrap().path().file_name().unwrap().to_str().unwrap()
-        )
+        match path {
+            Ok(dir) => {
+                if utils::is_valid_env(dir.path().as_path()) {
+                    println!("  {}", dir.file_name().into_string().unwrap())
+                }
+            }
+            Err(_) => todo!(),
+        }
     }
 }
 

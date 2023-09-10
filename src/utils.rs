@@ -21,3 +21,7 @@ pub fn get_venv_path() -> String {
 pub fn exists(path: &String) -> bool {
     Path::new(&path).exists()
 }
+
+pub fn is_valid_env(path: &Path) -> bool {
+    path.join("pyvenv.cfg").exists() && path.join("Scripts").exists()
+}
