@@ -5,7 +5,12 @@ use crate::utils;
 use clap::Parser;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about=None)]
+#[command(
+    author,
+    version,
+    about = "Rust-implemented Python Virtual enVironment manager",
+    long_about = None
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -26,7 +31,7 @@ pub fn run() {
         Commands::Add { name } => {
             let vp = venv_root.join(name);
             if vp.is_file() {
-                eprintln!("File with the same name exists.")
+                eprintln!("Env with the same name exists.")
             } else {
                 commands::create(&vp, name);
             }

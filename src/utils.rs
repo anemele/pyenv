@@ -1,11 +1,8 @@
 use std::env;
 use std::path::Path;
+use crate::constants::KEY;
 
 pub fn get_venv_path() -> String {
-    // let args:Vec<String>=env::args().collect();
-    // println!("args: {:?}",args);
-    // for (key,val) in env::vars(){println!("{} : {}",key,val)}
-    const KEY: &str = "PYTHON_VENV_PATH";
     match env::var(KEY) {
         Ok(val) => {
             // println!("{}: {}", key, val);
