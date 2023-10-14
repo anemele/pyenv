@@ -16,7 +16,7 @@ long_about = None,
 enum RVV {
     Add {
         name: String,
-        version: Option<f32>,
+        version: Option<String>,
         #[arg(long)]
         // #[arg(short, long)]
         overwrite: bool,
