@@ -1,20 +1,15 @@
 # Rust-implemented Virtual enVironment manager
 
-Based on Python virtualenv
-
-> (update)
-> To use multiple versions Python to create envs,
-> this update uses Windows pylauncher `py.exe`,
-> which is not compatible on other platforms.
+Based on Python third-party library `virtualenv`
 
 ## Usage
 
 Prerequisites
 
-1. Set the environment variable `PYTHON_VENV_PATH` to
-where locates the envs.
-2. Make sure where `py.exe` exists is in the PATH and
-`virtualenv` is already installed.
+1. Pre-install some version of Python, and install
+`virtualenv` with executable in PATH.
+2. Set the environment variable `PYTHON_VENV_PATH` to
+where you want to place the envs, and make sure it exists.
 
 Then
 
