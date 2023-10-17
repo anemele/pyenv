@@ -17,15 +17,15 @@ enum RVV {
     Add {
         name: String,
         version: Option<String>,
-        #[arg(long)]
-        // #[arg(short, long)]
-        overwrite: bool,
+        #[arg(short, long)]
+        force: bool,
     },
     #[clap(alias = "ls")]
     List,
     #[clap(alias = "rm")]
     Remove {
-        name: String,
+        #[clap(required = true)]
+        name: Vec<String>,
     },
     Use {
         name: String,
@@ -43,10 +43,10 @@ fn main() {
         RVV::Add {
             name,
             version,
-            overwrite,
-        } => commands::create(&venv_path, &name, version, overwrite),
+            force,
+        } => commands::create(&venv_path, &name, version, force),
         RVV::List => commands::list(&venv_path),
-        RVV::Remove { name } => commands::remove(&venv_path, &name),
+        RVV::Remove { name: names } => commands::remove(&venv_path, &names),
         RVV::Use { name } => commands::activate(&venv_path, &name),
     };
 

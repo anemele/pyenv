@@ -3,9 +3,9 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
-pub fn create(venv_path: &Path, name: &String, version: Option<String>, overwrite: bool) -> i32 {
+pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) -> i32 {
     let path = venv_path.join(&name);
-    if path.is_file() || (path.is_dir() && !overwrite) {
+    if path.is_file() || (path.is_dir() && !force) {
         eprintln!("Env with the same name exists.");
         return 1;
     }
