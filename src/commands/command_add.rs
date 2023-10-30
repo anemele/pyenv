@@ -19,7 +19,7 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
     match cmd
         // The following lines are customized settings
         .args(["--activators", "batch,powershell"])
-        .args(["--no-setuptools", "--no-wheel"])
+        .args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"])
         .output()
     {
         Ok(output) => {

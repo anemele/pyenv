@@ -2,7 +2,7 @@ use crate::utils;
 use std::path::Path;
 use std::process::Command;
 
-pub fn activate(venv_path: &Path, name: &String) -> i32 {
+pub fn activate(venv_path: &Path, name: &String, pwsh: bool) -> i32 {
     let path = venv_path.join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
@@ -14,12 +14,24 @@ pub fn activate(venv_path: &Path, name: &String) -> i32 {
         return 1;
     }
 
-    let _ = Command::new("cmd")
-        .arg("/c")
-        .arg("start cmd /k")
-        .arg(path.join("Scripts/activate"))
-        .spawn()
-        // .output()
-        .expect("Failed to activate env");
+    if pwsh {
+        let _ = Command::new("cmd")
+            .arg("/c")
+            .arg("start pwsh -NoExit")
+            .arg("-Command")
+            .arg(path.join("Scripts/activate.ps1"))
+            .spawn()
+            // .output()
+            .expect("Failed to activate env");
+    } else {
+        let _ = Command::new("cmd")
+            .arg("/c")
+            .arg("start cmd /k")
+            .arg(path.join("Scripts/activate.bat"))
+            .spawn()
+            // .output()
+            .expect("Failed to activate env");
+    }
+
     return 0;
 }

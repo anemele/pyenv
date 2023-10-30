@@ -15,20 +15,25 @@ long_about = None,
 
 enum RVV {
     Add {
+        #[arg(help = "env name")]
         name: String,
+        #[arg(help = "Python version")]
         version: Option<String>,
-        #[arg(short, long)]
+        #[arg(short, long, help = "overwrite an existing env")]
         force: bool,
     },
     #[clap(alias = "ls")]
     List,
     #[clap(alias = "rm")]
     Remove {
-        #[clap(required = true)]
+        #[clap(required = true, help = "env name, 1+")]
         name: Vec<String>,
     },
     Use {
+        #[arg(help = "env name")]
         name: String,
+        #[arg(short, long, default_value_t = false, help = "use PowerShell")]
+        pwsh: bool,
     },
 }
 
@@ -47,7 +52,7 @@ fn main() {
         } => commands::create(&venv_path, &name, version, force),
         RVV::List => commands::list(&venv_path),
         RVV::Remove { name: names } => commands::remove(&venv_path, &names),
-        RVV::Use { name } => commands::activate(&venv_path, &name),
+        RVV::Use { name, pwsh } => commands::activate(&venv_path, &name, pwsh),
     };
 
     process::exit(code)
