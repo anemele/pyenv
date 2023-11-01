@@ -22,7 +22,8 @@ jobs:
     - name: Build
       run: cargo build --release --verbose
     - name: Package
-      run: .\scripts\pack.bat
+      shell: cmd
+      run: scripts\pack.bat
     - name: Release
       uses: marvinpinto/action-automatic-releases@latest
       with:
@@ -31,4 +32,4 @@ jobs:
         title: 'latest'
         prerelease: false
         files: |
-          .\rvv.zip
+          rvv.zip
