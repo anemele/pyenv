@@ -10,7 +10,8 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         return 1;
     }
 
-    let mut cmd = Command::new("virtualenv");
+    let venv_exe = "virtualenv";
+    let mut cmd = Command::new(venv_exe);
     let mut cmd = cmd.arg(path.as_os_str());
     if let Some(ver) = version {
         cmd = cmd.arg("--python").arg(format!("{ver}"));
@@ -27,7 +28,7 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
             println!("{output_str}");
         }
         Err(e) => {
-            eprintln!("Failed to create env `{}`: {}", name, e);
+            eprintln!("Failed to create env `{name}`: {e}\nMaybe `{venv_exe}` is not in PATH?");
             return 1;
         }
     }
