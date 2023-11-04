@@ -1,12 +1,12 @@
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) -> i32 {
     let path = venv_path.join(&name);
     if path.is_file() || (path.is_dir() && !force) {
-        eprintln!("Env with the same name exists.");
+        eprintln!("Env with the same name `{name}` exists.");
         return 1;
     }
 
@@ -17,23 +17,25 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         cmd = cmd.arg("--python").arg(format!("{ver}"));
     }
 
-    match cmd
+    let ok = match cmd
         // The following lines are customized settings
         .args(["--activators", "batch,powershell"])
         .args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .output()
     {
-        Ok(output) => {
-            let output_str = String::from_utf8_lossy(&output.stdout);
-            println!("{output_str}");
-        }
+        Ok(output) => match output.status.code() {
+            Some(code) => code == 0,
+            None => false,
+        },
         Err(e) => {
             eprintln!("Failed to create env `{name}`: {e}\nMaybe `{venv_exe}` is not in PATH?");
             return 1;
         }
-    }
+    };
 
-    if path.exists() && create_idle(&path) {
+    if ok && path.exists() && create_idle(&path) {
         0
     } else {
         1

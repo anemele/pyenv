@@ -10,7 +10,7 @@ fn remove_one(venv_path: &Path, name: &String) -> i32 {
     }
 
     if path.is_file() {
-        eprintln!("File with the same name exists.");
+        eprintln!("File with the same name `{name}` exists.");
         return 1;
     }
 
