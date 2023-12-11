@@ -2,7 +2,6 @@ use clap::Parser;
 use rvv::commands;
 use rvv::utils;
 use std::path::Path;
-use std::process;
 
 #[derive(Parser)]
 #[clap(
@@ -13,7 +12,7 @@ about = "Rust-implemented Python Virtual enVironment manager",
 long_about = None,
 )]
 
-enum RVV {
+enum Cli {
     Add {
         #[arg(help = "env name")]
         name: String,
@@ -44,16 +43,15 @@ fn main() {
         return;
     }
 
-    let code = match RVV::parse() {
-        RVV::Add {
+    match Cli::parse() {
+        Cli::Add {
             name,
             version,
             force,
-        } => commands::create(&venv_path, &name, version, force),
-        RVV::List => commands::list(&venv_path),
-        RVV::Remove { name: names } => commands::remove(&venv_path, &names),
-        RVV::Use { name, pwsh } => commands::activate(&venv_path, &name, pwsh),
+        } => commands::create(venv_path, &name, version, force),
+        Cli::List => commands::list(venv_path),
+        Cli::Remove { name: names } => commands::remove(venv_path, &names),
+        Cli::Use { name, pwsh } => commands::activate(venv_path, &name, pwsh),
     };
-
-    process::exit(code)
 }
+

@@ -2,16 +2,16 @@ use crate::utils;
 use std::path::Path;
 use std::process::Command;
 
-pub fn activate(venv_path: &Path, name: &String, pwsh: bool) -> i32 {
+pub fn activate(venv_path: &Path, name: &String, pwsh: bool) {
     let path = venv_path.join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
-        return 1;
+        return;
     }
 
     if !utils::is_valid_env(path.as_path()) {
         eprintln!("Invalid env `{name}`");
-        return 1;
+        return;
     }
 
     if pwsh {
@@ -32,6 +32,5 @@ pub fn activate(venv_path: &Path, name: &String, pwsh: bool) -> i32 {
             // .output()
             .expect("Failed to activate env");
     }
-
-    return 0;
 }
+

@@ -1,8 +1,8 @@
 use crate::utils;
 use std::{fs, path::Path};
 
-pub fn list(path: &Path) -> i32 {
-    let paths = fs::read_dir(&path).unwrap();
+pub fn list(path: &Path) {
+    let paths = fs::read_dir(path).unwrap();
 
     println!("Available envs:");
     for path in paths {
@@ -15,6 +15,5 @@ pub fn list(path: &Path) -> i32 {
             Err(_) => todo!(),
         }
     }
-
-    return 0;
 }
+

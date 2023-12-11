@@ -3,18 +3,18 @@ use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) -> i32 {
-    let path = venv_path.join(&name);
+pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) {
+    let path = venv_path.join(name);
     if path.is_file() || (path.is_dir() && !force) {
         eprintln!("Env with the same name `{name}` exists.");
-        return 1;
+        return;
     }
 
     let venv_exe = "virtualenv";
     let mut cmd = Command::new(venv_exe);
     let mut cmd = cmd.arg(path.as_os_str());
     if let Some(ver) = version {
-        cmd = cmd.arg("--python").arg(format!("{ver}"));
+        cmd = cmd.arg("--python").arg(ver);
     }
 
     let ok = match cmd
@@ -31,27 +31,19 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         },
         Err(e) => {
             eprintln!("Failed to create env `{name}`: {e}\nMaybe `{venv_exe}` is not in PATH?");
-            return 1;
+            return;
         }
     };
 
-    if ok && path.exists() && create_idle(&path) {
-        0
-    } else {
-        1
+    if ok && path.exists() {
+        create_idle(&path)
     }
 }
 
-fn create_idle(path: &Path) -> bool {
+fn create_idle(path: &Path) {
     let idle = path.join("Scripts/idle.bat");
-    match fs::File::create(idle) {
-        Ok(mut file) => {
-            let result = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
-            match result {
-                Ok(_) => true,
-                Err(_) => false,
-            }
-        }
-        Err(_) => false,
+    if let Ok(mut file) = fs::File::create(idle) {
+        let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
     }
 }
+
