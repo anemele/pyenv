@@ -1,5 +1,5 @@
 [package]
-name = "rvv"
+name = "pvm"
 version = "0.2.4"
 authors = ["Jason Swift <anemele@outlook.com>"]
 edition = "2021"
@@ -7,7 +7,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# clap = "~2.33.3"
 clap = { version = "~4.3.23", features = ["derive", "env"] }
-# [dependencies.clap]
-# git = "https://github.com/clap-rs/clap.git"

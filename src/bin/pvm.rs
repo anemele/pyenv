@@ -1,14 +1,14 @@
 use clap::Parser;
-use rvv::commands;
-use rvv::utils;
+use pvm::commands;
+use pvm::utils;
 use std::path::Path;
 
 #[derive(Parser)]
 #[clap(
-name = "rvv",
+name = "pvm",
 version,
 author,
-about = "Rust-implemented Python Virtual enVironment manager",
+about = "Python Virtual env Manager",
 long_about = None,
 )]
 
@@ -54,4 +54,3 @@ fn main() {
         Cli::Use { name, pwsh } => commands::activate(venv_path, &name, pwsh),
     };
 }
-

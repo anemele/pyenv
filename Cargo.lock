@@ -185,6 +185,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "pvm"
+version = "0.2.4"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -204,13 +211,6 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys",
-]
-
-[[package]]
-name = "rvv"
-version = "0.2.4"
-dependencies = [
- "clap",
 ]
 
 [[package]]
