@@ -41,7 +41,7 @@ jobs:
         CARGO_TARGET_aarch64-unknown-linux-musl: ${{matrix.rustflags}}
     - uses: actions/upload-artifact@v3
       with:
-        name: pvm-${{matrix.label}}
+        name: ${{matrix.label}}
         path: |
           target/${{matrix.target}}/release/pvm.exe
 
