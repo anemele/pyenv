@@ -1,35 +1,117 @@
-name: GitHub Actions Build and Release
+name: Build and Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
-  build-and-release:
-    runs-on: windows-latest
+
+  build:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        label: [
+          x86_64-pc-windows-msvc-portable
+          ]
+        include:
+          - label: x86_64-pc-windows-msvc-portable
+            target: x86_64-pc-windows-msvc
+            bins: --bin pvm
+            os: windows
+            features: dummy
+            rustflags:
+            toolchain: stable
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Rust
-      uses: hecrj/setup-rust-action@v2
+    - uses: actions/checkout@v4
+    - uses: actions-rs/toolchain@v1
       with:
-        rust-version: 'stable'
-    - name: Test Cargo
-      run: cargo --version
+        toolchain: ${{matrix.toolchain}}
+        default: true
+        target: ${{matrix.target}}
+    - name: Release build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        use-cross: ${{ matrix.os == 'ubuntu' }}
+        args: --release ${{matrix.bins}} --target ${{matrix.target}} --features ${{matrix.features}}
+      env:
+        CARGO_TARGET_x86_64-unknown-linux-musl: ${{matrix.rustflags}}
+        CARGO_TARGET_i686-unknown-linux-musl: ${{matrix.rustflags}}
+        CARGO_TARGET_aarch64-unknown-linux-musl: ${{matrix.rustflags}}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: pvm-${{matrix.label}}
+        path: |
+          target/${{matrix.target}}/release/pvm.exe
+
+  test:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        target: [
+          x86_64-pc-windows-msvc
+          ]
+        include:
+          - target: x86_64-pc-windows-msvc
+            os: windows
+            features: dummy
+            rustflags:
+            toolchain: stable
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{matrix.toolchain}}
+        default: true
+        target: ${{matrix.target}}
     - name: Test
-      run: cargo test --verbose
-    - name: Build
-      run: cargo build --release --verbose
-    - name: Package
-      shell: cmd
-      run: scripts\pack.bat
-    - name: Release
-      uses: marvinpinto/action-automatic-releases@latest
+      uses: actions-rs/cargo@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: 'latest'
-        title: 'latest'
+        command: test
+        use-cross: ${{ matrix.os == 'ubuntu' }}
+        args: --target ${{matrix.target}} --features ${{matrix.features}}
+
+  package-portable:
+    needs: [build,test]
+    environment: package
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - name: Download x86_64-pc-windows-msvc-portable artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: x86_64-pc-windows-msvc-portable
+        path: target/x86_64-pc-windows-msvc-portable
+    - name: Export version
+      run: |
+        export VERSION=$(echo $GH_REF | sed 's:refs/tags/v::')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      env:
+          GH_REF: ${{ github.ref }}
+    - name: Create archives
+      run: |
+        mkdir public
+        zip public/pvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip \
+          target/x86_64-pc-windows-msvc-portable/pvm.exe scripts/setup.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: portable
+        path: public/*.*
+
+  deploy-github-release-binaries:
+    needs: [package-portable]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: portable
+        path: public
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "public/*.*"
+        allowUpdates: true
         prerelease: false
-        files: |
-          pvm.zip
