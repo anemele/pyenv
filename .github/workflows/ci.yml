@@ -91,9 +91,11 @@ jobs:
           GH_REF: ${{ github.ref }}
     - name: Create archives
       run: |
+        cp scripts/setup.bat target/x86_64-pc-windows-msvc-portable
         mkdir public
-        zip public/pvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip \
-          target/x86_64-pc-windows-msvc-portable/pvm.exe scripts/setup.exe
+        cd target/x86_64-pc-windows-msvc-portable
+        zip -r ../../public/pvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip .
+        cd ../..
     - uses: actions/upload-artifact@v3
       with:
         name: portable
