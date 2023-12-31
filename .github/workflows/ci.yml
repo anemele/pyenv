@@ -19,7 +19,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             bins: --bin pvm
             os: windows
-            features: dummy
+            features:
             rustflags:
             toolchain: stable
     steps:
@@ -34,7 +34,7 @@ jobs:
       with:
         command: build
         use-cross: ${{ matrix.os == 'ubuntu' }}
-        args: --release ${{matrix.bins}} --target ${{matrix.target}} --features ${{matrix.features}}
+        args: --release ${{matrix.bins}} --target ${{matrix.target}}
       env:
         CARGO_TARGET_x86_64-unknown-linux-musl: ${{matrix.rustflags}}
         CARGO_TARGET_i686-unknown-linux-musl: ${{matrix.rustflags}}
@@ -55,7 +55,7 @@ jobs:
         include:
           - target: x86_64-pc-windows-msvc
             os: windows
-            features: dummy
+            features:
             rustflags:
             toolchain: stable
     steps:
@@ -70,7 +70,7 @@ jobs:
       with:
         command: test
         use-cross: ${{ matrix.os == 'ubuntu' }}
-        args: --target ${{matrix.target}} --features ${{matrix.features}}
+        args: --target ${{matrix.target}}
 
   package-portable:
     needs: [build,test]
