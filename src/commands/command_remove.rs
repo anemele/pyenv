@@ -2,7 +2,7 @@ use crate::utils;
 use std::fs;
 use std::path::Path;
 
-fn remove_one(venv_path: &Path, name: &String) {
+pub fn remove(venv_path: &Path, name: &String) {
     let path = venv_path.join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
@@ -28,10 +28,3 @@ fn remove_one(venv_path: &Path, name: &String) {
         }
     }
 }
-
-pub fn remove(venv_path: &Path, names: &Vec<String>) {
-    for name in names {
-        remove_one(venv_path, name);
-    }
-}
-

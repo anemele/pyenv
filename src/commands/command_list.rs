@@ -6,14 +6,10 @@ pub fn list(path: &Path) {
 
     println!("Available envs:");
     for path in paths {
-        match path {
-            Ok(dir) => {
-                if utils::is_valid_env(dir.path().as_path()) {
-                    println!("  {}", dir.file_name().into_string().unwrap())
-                }
+        if let Ok(dir) = path {
+            if utils::is_valid_env(dir.path().as_path()) {
+                println!("  {}", dir.file_name().into_string().unwrap())
             }
-            Err(_) => todo!(),
         }
     }
 }
-

@@ -14,23 +14,20 @@ pub fn activate(venv_path: &Path, name: &String, pwsh: bool) {
         return;
     }
 
-    if pwsh {
-        let _ = Command::new("cmd")
+    match if pwsh {
+        Command::new("cmd")
             .arg("/c")
-            .arg("start pwsh -NoExit")
-            .arg("-Command")
+            .arg("start pwsh -NoExit -Command")
             .arg(path.join("Scripts/activate.ps1"))
-            .spawn()
-            // .output()
-            .expect("Failed to activate env");
+            .status()
     } else {
-        let _ = Command::new("cmd")
+        Command::new("cmd")
             .arg("/c")
             .arg("start cmd /k")
             .arg(path.join("Scripts/activate.bat"))
-            .spawn()
-            // .output()
-            .expect("Failed to activate env");
+            .status()
+    } {
+        Ok(_) => {}
+        Err(e) => eprint!("Failed to activate env `{name}`:\n{e}"),
     }
 }
-

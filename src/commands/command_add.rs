@@ -5,6 +5,7 @@ use std::process::{Command, Stdio};
 
 pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) {
     let path = venv_path.join(name);
+
     if path.is_file() || (path.is_dir() && !force) {
         eprintln!("Env with the same name `{name}` exists.");
         return;
@@ -23,12 +24,16 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         .args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"])
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
-        .output()
+        .status()
     {
-        Ok(output) => match output.status.code() {
-            Some(code) => code == 0,
-            None => false,
-        },
+        Ok(status) => {
+            if let Some(code) = status.code() {
+                code == 0
+            } else {
+                false
+            }
+        }
+
         Err(e) => {
             eprintln!("Failed to create env `{name}`: {e}\nMaybe `{venv_exe}` is not in PATH?");
             return;
@@ -46,4 +51,3 @@ fn create_idle(path: &Path) {
         let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
     }
 }
-
