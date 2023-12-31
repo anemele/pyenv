@@ -91,7 +91,6 @@ jobs:
           GH_REF: ${{ github.ref }}
     - name: Create archives
       run: |
-        cp scripts/setup.bat target/x86_64-pc-windows-msvc-portable
         mkdir public
         cd target/x86_64-pc-windows-msvc-portable
         zip -r ../../public/pvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip .
