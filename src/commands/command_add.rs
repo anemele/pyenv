@@ -1,4 +1,4 @@
-use std::fs;
+use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -47,7 +47,7 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
 
 fn create_idle(path: &Path) {
     let idle = path.join("Scripts/idle.bat");
-    if let Ok(mut file) = fs::File::create(idle) {
+    if let Ok(mut file) = File::create(idle) {
         let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
     }
 }

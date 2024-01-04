@@ -1,4 +1,4 @@
-use crate::utils;
+use crate::utils::is_valid_env;
 use std::path::Path;
 use std::process::Command;
 
@@ -9,7 +9,7 @@ pub fn activate(venv_path: &Path, name: &String, pwsh: bool) {
         return;
     }
 
-    if !utils::is_valid_env(path.as_path()) {
+    if !is_valid_env(path.as_path()) {
         eprintln!("Invalid env `{name}`");
         return;
     }

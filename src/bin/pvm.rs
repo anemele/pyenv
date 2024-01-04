@@ -1,6 +1,6 @@
 use clap::Parser;
 use pvm::commands;
-use pvm::utils;
+use pvm::constants::get_venv_path;
 use std::path::Path;
 
 #[derive(Parser)]
@@ -45,8 +45,13 @@ enum Cli {
 }
 
 fn main() {
-    let venv_path = utils::get_venv_path();
-    let venv_path = Path::new(&venv_path);
+    let tmp = match get_venv_path() {
+        Some(val) => val,
+        None => {
+            return;
+        }
+    };
+    let venv_path = Path::new(&tmp);
     if !venv_path.exists() {
         return;
     }

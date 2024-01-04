@@ -1,5 +1,5 @@
-use crate::utils;
-use std::fs;
+use crate::utils::is_valid_env;
+use std::fs::remove_dir_all;
 use std::path::Path;
 
 pub fn remove(venv_path: &Path, name: &String) {
@@ -14,12 +14,12 @@ pub fn remove(venv_path: &Path, name: &String) {
         return;
     }
 
-    if !utils::is_valid_env(path.as_path()) {
+    if !is_valid_env(path.as_path()) {
         eprintln!("Invalid env `{name}`");
         return;
     }
 
-    match fs::remove_dir_all(path) {
+    match remove_dir_all(path) {
         Ok(_) => {
             println!("Removed env `{name}`");
         }
