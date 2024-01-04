@@ -3,6 +3,8 @@ use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
+const VENV_EXE: &str = "virtualenv";
+
 pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) {
     let path = venv_path.join(name);
 
@@ -11,17 +13,20 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         return;
     }
 
-    let venv_exe = "virtualenv";
-    let mut cmd = Command::new(venv_exe);
+    let mut cmd = Command::new(VENV_EXE);
     let mut cmd = cmd.arg(path.as_os_str());
     if let Some(ver) = version {
         cmd = cmd.arg("--python").arg(ver);
     }
 
+    // The following lines are customized settings
+    cmd = cmd.args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"]);
+    if cfg!(windows) {
+        // bash,batch,fish,nushell,powershell,python
+        cmd = cmd.args(["--activators", "batch,powershell"])
+    }
+
     let ok = match cmd
-        // The following lines are customized settings
-        .args(["--activators", "batch,powershell"])
-        .args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"])
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .status()
@@ -35,19 +40,19 @@ pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: b
         }
 
         Err(e) => {
-            eprintln!("Failed to create env `{name}`: {e}\nMaybe `{venv_exe}` is not in PATH?");
+            eprintln!(
+                "Failed to create env `{name}`: {e}\nMaybe `{}` is not in PATH?",
+                VENV_EXE
+            );
             return;
         }
     };
 
-    if ok && path.exists() {
-        create_idle(&path)
-    }
-}
-
-fn create_idle(path: &Path) {
-    let idle = path.join("Scripts/idle.bat");
-    if let Ok(mut file) = File::create(idle) {
-        let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
+    if cfg!(windows) && ok && path.exists() {
+        // create idle for Windows
+        let idle = path.join("Scripts/idle.bat");
+        if let Ok(mut file) = File::create(idle) {
+            let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
+        }
     }
 }
