@@ -11,9 +11,8 @@ author,
 about = "Python Virtual env Manager",
 long_about = None,
 )]
-
 enum Cli {
-    /// List all envs
+    /// Create a new env
     Add {
         #[arg(help = "env name")]
         name: String,
@@ -27,7 +26,7 @@ enum Cli {
         )]
         force: bool,
     },
-    /// Create a new env
+    /// List all envs
     #[clap(alias = "ls")]
     List,
     /// Remove an existing env
