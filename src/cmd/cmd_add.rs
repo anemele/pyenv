@@ -1,11 +1,11 @@
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub fn create(venv_path: &Path, name: &String, version: Option<String>, force: bool) {
+pub fn create(venv_path: PathBuf, name: &String, version: Option<String>, force: bool) {
     let path = venv_path.join(name);
 
     if path.is_file() || (path.is_dir() && !force) {

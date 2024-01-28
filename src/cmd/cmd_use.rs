@@ -1,15 +1,15 @@
 use crate::utils::is_valid_env;
-use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
 
-pub fn activate(venv_path: &Path, name: &String, pwsh: bool) {
+pub fn activate(venv_path: PathBuf, name: &String, pwsh: bool) {
     let path = venv_path.join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
         return;
     }
 
-    if !is_valid_env(path.as_path()) {
+    if !is_valid_env(&path) {
         eprintln!("Invalid env `{name}`");
         return;
     }

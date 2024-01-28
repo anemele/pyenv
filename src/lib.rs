@@ -1,3 +1,6 @@
-pub mod commands;
-pub mod constants;
-pub mod utils;
+pub mod cli;
+mod cmd;
+mod consts;
+mod utils;
+
+use consts::*;

@@ -1,8 +1,8 @@
 use crate::utils::is_valid_env;
 use std::fs::remove_dir_all;
-use std::path::Path;
+use std::path::PathBuf;
 
-pub fn remove(venv_path: &Path, name: &String) {
+pub fn remove(venv_path: PathBuf, name: &String) {
     let path = venv_path.join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
@@ -14,17 +14,13 @@ pub fn remove(venv_path: &Path, name: &String) {
         return;
     }
 
-    if !is_valid_env(path.as_path()) {
+    if !is_valid_env(&path) {
         eprintln!("Invalid env `{name}`");
         return;
     }
 
     match remove_dir_all(path) {
-        Ok(_) => {
-            println!("Removed env `{name}`");
-        }
-        Err(_) => {
-            println!("Failed to remove `{name}`");
-        }
+        Ok(_) => println!("Removed env `{name}`"),
+        Err(_) => println!("Failed to remove `{name}`"),
     }
 }
