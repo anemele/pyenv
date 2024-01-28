@@ -5,12 +5,10 @@ based on `virtualenv` .
 
 ## Usage
 
-Prerequisites
+Prerequisite
 
-1. Pre-install some version of Python, and install
-`virtualenv` with executable in PATH.
-2. Set the environment variable `PYTHON_VENV_PATH` as
-where you want to place the envs, and make sure it exists.
+Pre-install some version of Python,
+and install `virtualenv` with executable in PATH.
 
 Then
 
