@@ -1,1 +1,1 @@
-pub const PYTHON_VENV_PATH: &str = ".local/venv";
+pub const PYTHON_VENV_PATH: &str = ".venvs";

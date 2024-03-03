@@ -6,12 +6,7 @@ use std::{
 
 pub fn is_valid_env<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
-    path.join("pyvenv.cfg").exists()
-        && if cfg!(windows) {
-            path.join("Scripts").exists()
-        } else {
-            path.join("bin").exists()
-        }
+    path.join("pyvenv.cfg").exists() && path.join("Scripts").exists()
 }
 
 pub fn get_venv_path() -> Option<PathBuf> {
