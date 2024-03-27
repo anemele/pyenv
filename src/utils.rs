@@ -1,10 +1,11 @@
-use super::PYTHON_VENV_PATH;
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
+use super::consts::PYTHON_VENV_PATH;
+use std::env;
+use std::path::{Path, PathBuf};
 
-pub fn is_valid_env<P: AsRef<Path>>(path: P) -> bool {
+pub fn is_valid_env<P>(path: P) -> bool
+where
+    P: AsRef<Path>,
+{
     let path = path.as_ref();
     path.join("pyvenv.cfg").exists() && path.join("Scripts").exists()
 }

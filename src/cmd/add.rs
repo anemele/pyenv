@@ -1,20 +1,23 @@
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub fn create(venv_path: PathBuf, name: &String, version: Option<String>, force: bool) {
-    let path = venv_path.join(name);
+pub fn create<P>(venv_path: P, name: &str, version: Option<String>, force: bool)
+where
+    P: AsRef<Path>,
+{
+    let path = venv_path.as_ref().join(name);
 
     if path.is_file() || (path.is_dir() && !force) {
         eprintln!("Env with the same name `{name}` exists.");
         return;
     }
 
-    let mut cmd = Command::new(VENV_EXE);
-    let mut cmd = cmd.arg(path.as_os_str());
+    let mut cmd = &mut Command::new(VENV_EXE);
+    cmd = cmd.arg(path.as_os_str());
     if let Some(ver) = version {
         cmd = cmd.arg("--python").arg(ver);
     }
@@ -52,7 +55,7 @@ pub fn create(venv_path: PathBuf, name: &String, version: Option<String>, force:
         // create idle for Windows
         let idle = path.join("Scripts/idle.bat");
         if let Ok(mut file) = File::create(idle) {
-            let _ = file.write_all(b"@call %~dp0python.exe -m idlelib %*");
+            let _ = file.write(b"@call %~dp0python.exe -m idlelib %*");
         }
     }
 }

@@ -1,9 +1,13 @@
 use crate::utils::is_valid_env;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process::Command;
 
-pub fn activate(venv_path: PathBuf, name: &String, pwsh: bool) {
-    let path = venv_path.join(name);
+pub fn activate<P>(venv_path: P, name: &str, pwsh: bool)
+where
+    P: AsRef<Path>,
+{
+    let path = venv_path.as_ref().join(name);
+
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
         return;

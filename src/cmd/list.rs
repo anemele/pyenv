@@ -1,9 +1,13 @@
 use crate::utils::is_valid_env;
-use std::{fs::read_dir, path::PathBuf};
+use std::fs::read_dir;
+use std::path::Path;
 
-pub fn list(venv_path: PathBuf) {
+pub fn list<P>(venv_path: P)
+where
+    P: AsRef<Path>,
+{
     let Ok(paths) = read_dir(&venv_path) else {
-        eprintln!("failed to read dir: {}", venv_path.display());
+        eprintln!("failed to read dir: {}", venv_path.as_ref().display());
         return;
     };
 

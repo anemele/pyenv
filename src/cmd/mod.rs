@@ -1,9 +1,9 @@
-mod cmd_add;
-mod cmd_list;
-mod cmd_remove;
-mod cmd_use;
+mod add;
+mod list;
+mod remove;
+mod r#use;
 
-pub use cmd_add::create;
-pub use cmd_list::list;
-pub use cmd_remove::remove;
-pub use cmd_use::activate;
+pub use add::create;
+pub use list::list;
+pub use r#use::activate;
+pub use remove::remove;
