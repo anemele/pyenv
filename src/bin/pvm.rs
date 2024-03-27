@@ -49,6 +49,7 @@ enum Cli {
 
 fn main() {
     let Some(venv_path) = get_venv_path() else {
+        eprintln!("failed to get HOME dir");
         return;
     };
 

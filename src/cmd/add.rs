@@ -22,12 +22,8 @@ where
         cmd = cmd.arg("--python").arg(ver);
     }
 
-    // The following lines are customized settings
+    // something unnecessary
     cmd = cmd.args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"]);
-    if cfg!(windows) {
-        // bash,batch,fish,nushell,powershell,python
-        cmd = cmd.args(["--activators", "batch,powershell"])
-    }
 
     let ok = match cmd
         .stdout(Stdio::inherit())
