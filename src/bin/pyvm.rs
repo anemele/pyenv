@@ -1,11 +1,11 @@
 use clap::Parser;
-use pvm::cmd;
-use pvm::utils::get_venv_path;
+use pyvm::cmd;
+use pyvm::utils::get_venv_path;
 use std::fs;
 
 #[derive(Parser)]
 #[clap(
-name = "pvm",
+name = "pyvm",
 version,
 author,
 about = "Python Virtual env Manager",
