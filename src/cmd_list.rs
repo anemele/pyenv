@@ -2,7 +2,7 @@ use crate::utils::is_valid_env;
 use std::fs::read_dir;
 use std::path::Path;
 
-pub fn list<P>(venv_path: P)
+pub(crate) fn exec<P>(venv_path: P)
 where
     P: AsRef<Path>,
 {

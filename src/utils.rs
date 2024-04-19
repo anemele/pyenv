@@ -7,10 +7,18 @@ where
     P: AsRef<Path>,
 {
     let path = path.as_ref();
-    path.join("pyvenv.cfg").exists() && path.join("Scripts").exists()
+
+    let pyvenv_cfg = path.join("pyvenv.cfg").exists();
+
+    #[cfg(target_family = "unix")]
+    let bin = path.join("bin").exists();
+    #[cfg(target_family = "windows")]
+    let bin = path.join("Scripts").exists();
+
+    pyvenv_cfg && bin
 }
 
-pub fn get_venv_path() -> Option<PathBuf> {
+pub(crate) fn get_venv_path() -> Option<PathBuf> {
     let Ok(home) = get_my_home() else {
         return None;
     };

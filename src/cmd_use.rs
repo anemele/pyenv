@@ -2,7 +2,7 @@ use crate::utils::is_valid_env;
 use std::path::Path;
 use std::process::Command;
 
-pub fn activate<P>(venv_path: P, name: &str, pwsh: bool)
+pub(crate) fn exec<P>(venv_path: P, name: &str, pwsh: bool)
 where
     P: AsRef<Path>,
 {

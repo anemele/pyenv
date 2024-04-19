@@ -1,7 +1,4 @@
 use clap::Parser;
-use pyvm::cmd;
-use pyvm::utils::get_venv_path;
-use std::fs;
 
 #[derive(Parser)]
 #[clap(
@@ -11,7 +8,7 @@ author,
 about = "Python Virtual env Manager",
 long_about = None,
 )]
-enum Cli {
+pub(crate) enum Cli {
     /// Create a new env
     Add {
         #[arg(help = "env name")]
@@ -45,27 +42,4 @@ enum Cli {
         #[arg(short, long, default_value_t = false, help = "use PowerShell v7+")]
         pwsh: bool,
     },
-}
-
-fn main() {
-    let Some(venv_path) = get_venv_path() else {
-        eprintln!("failed to get HOME dir");
-        return;
-    };
-
-    if !venv_path.exists() && fs::create_dir(&venv_path).is_err() {
-        eprintln!("failed to create dir: {}", venv_path.display());
-        return;
-    }
-
-    match Cli::parse() {
-        Cli::Add {
-            name,
-            version,
-            force,
-        } => cmd::create(venv_path, &name, version, force),
-        Cli::List => cmd::list(venv_path),
-        Cli::Remove { name } => cmd::remove(venv_path, &name),
-        Cli::Use { name, pwsh } => cmd::activate(venv_path, &name, pwsh),
-    };
 }

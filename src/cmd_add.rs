@@ -5,7 +5,7 @@ use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub fn create<P>(venv_path: P, name: &str, version: Option<String>, force: bool)
+pub(crate) fn exec<P>(venv_path: P, name: &str, version: Option<String>, force: bool)
 where
     P: AsRef<Path>,
 {

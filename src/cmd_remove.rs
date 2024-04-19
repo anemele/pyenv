@@ -2,7 +2,7 @@ use crate::utils::is_valid_env;
 use std::fs::remove_dir_all;
 use std::path::Path;
 
-pub fn remove<P>(venv_path: P, name: &str)
+pub(crate) fn exec<P>(venv_path: P, name: &str)
 where
     P: AsRef<Path>,
 {
