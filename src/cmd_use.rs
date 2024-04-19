@@ -1,8 +1,7 @@
 use crate::utils::is_valid_env;
 use std::path::Path;
-use std::process::Command;
 
-pub(crate) fn exec<P>(venv_path: P, name: &str, pwsh: bool)
+pub(crate) fn exec<P>(venv_path: P, name: &str)
 where
     P: AsRef<Path>,
 {
@@ -18,20 +17,27 @@ where
         return;
     }
 
-    match if pwsh {
-        Command::new("cmd")
-            .arg("/c")
-            .arg("start pwsh -NoExit -Command")
-            .arg(path.join("Scripts/activate.ps1"))
-            .status()
-    } else {
-        Command::new("cmd")
+    #[cfg(target_family = "windows")]
+    {
+        use std::process::Command;
+        if let Err(e) = Command::new("cmd")
             .arg("/c")
             .arg("start cmd /k")
             .arg(path.join("Scripts/activate.bat"))
             .status()
-    } {
-        Ok(_) => {}
-        Err(e) => eprint!("Failed to activate env `{name}`:\n{e}"),
+        {
+            eprintln!("Failed to activate env `{name}`:\n{e}")
+        }
+    }
+
+    #[cfg(target_family = "unix")]
+    {
+        // eprintln!("NOT support on *nix");
+        // eprintln!("use `source` command instead");
+        println!(
+            "source {}/{}/bin/activate",
+            venv_path.as_ref().display(),
+            name
+        )
     }
 }

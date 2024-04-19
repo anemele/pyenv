@@ -32,6 +32,6 @@ fn main() {
         } => cmd_add::exec(venv_path, &name, version, force),
         Cli::List => cmd_list::exec(venv_path),
         Cli::Remove { name } => cmd_remove::exec(venv_path, &name),
-        Cli::Use { name, pwsh } => cmd_use::exec(venv_path, &name, pwsh),
+        Cli::Use { name } => cmd_use::exec(venv_path, &name),
     };
 }

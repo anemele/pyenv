@@ -39,7 +39,5 @@ pub(crate) enum Cli {
     Use {
         #[arg(help = "env name")]
         name: String,
-        #[arg(short, long, default_value_t = false, help = "use PowerShell v7+")]
-        pwsh: bool,
     },
 }
