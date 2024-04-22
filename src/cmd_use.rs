@@ -1,10 +1,7 @@
 use crate::utils::is_valid_env;
 use std::path::Path;
 
-pub(crate) fn exec<P>(venv_path: P, name: &str)
-where
-    P: AsRef<Path>,
-{
+pub(crate) fn exec(venv_path: impl AsRef<Path>, name: &str) {
     let path = venv_path.as_ref().join(name);
 
     if !path.exists() {

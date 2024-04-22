@@ -2,10 +2,7 @@ use crate::utils::is_valid_env;
 use std::fs::remove_dir_all;
 use std::path::Path;
 
-pub(crate) fn exec<P>(venv_path: P, name: &str)
-where
-    P: AsRef<Path>,
-{
+pub(crate) fn exec(venv_path: impl AsRef<Path>, name: &str) {
     let path = venv_path.as_ref().join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
@@ -22,8 +19,9 @@ where
         return;
     }
 
-    match remove_dir_all(path) {
-        Ok(_) => println!("Removed env `{name}`"),
-        Err(_) => println!("Failed to remove `{name}`"),
+    if remove_dir_all(path).is_ok() {
+        println!("Removed env `{name}`")
+    } else {
+        println!("Failed to remove `{name}`")
     }
 }

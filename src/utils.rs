@@ -1,28 +1,17 @@
-use super::consts::PYTHON_VENV_PATH;
+use crate::consts::PYTHON_VENV_PATH;
+use crate::consts::PY_BIN_DIR;
+use crate::consts::PY_VENV_CFG;
 use homedir::get_my_home;
 use std::path::{Path, PathBuf};
 
-pub(crate) fn is_valid_env<P>(path: P) -> bool
-where
-    P: AsRef<Path>,
-{
+pub(crate) fn is_valid_env(path: impl AsRef<Path>) -> bool {
     let path = path.as_ref();
 
-    let pyvenv_cfg = path.join("pyvenv.cfg").exists();
-
-    #[cfg(target_family = "unix")]
-    let bin = path.join("bin").exists();
-    #[cfg(target_family = "windows")]
-    let bin = path.join("Scripts").exists();
-
-    pyvenv_cfg && bin
+    path.join(PY_VENV_CFG).exists() && path.join(PY_BIN_DIR).exists()
 }
 
 pub(crate) fn get_venv_path() -> Option<PathBuf> {
-    let Ok(home) = get_my_home() else {
-        return None;
-    };
-    let Some(home) = home else {
+    let Ok(Some(home)) = get_my_home() else {
         return None;
     };
 

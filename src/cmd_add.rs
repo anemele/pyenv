@@ -1,14 +1,9 @@
-use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub(crate) fn exec<P>(venv_path: P, name: &str, version: Option<String>, force: bool)
-where
-    P: AsRef<Path>,
-{
+pub(crate) fn exec(venv_path: impl AsRef<Path>, name: &str, version: Option<String>, force: bool) {
     let path = venv_path.as_ref().join(name);
 
     if path.is_file() || (path.is_dir() && !force) {
@@ -25,33 +20,25 @@ where
     // something unnecessary
     cmd = cmd.args(["--no-setuptools", "--no-wheel", "--no-vcs-ignore"]);
 
-    let ok = match cmd
+    if let Err(e) = cmd
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
-        .status()
+        .output()
     {
-        Ok(status) => {
-            if let Some(code) = status.code() {
-                code == 0
-            } else {
-                false
-            }
-        }
-
-        Err(e) => {
-            eprintln!(
-                "Failed to create env `{name}`: {e}\nMaybe `{}` is not in PATH?",
-                VENV_EXE
-            );
-            return;
-        }
+        eprintln!(
+            "Failed to create env `{name}`: {e}\nMaybe `{}` is not in PATH?",
+            VENV_EXE
+        );
+        return;
     };
 
-    if cfg!(windows) && ok && path.exists() {
+    #[cfg(target_family = "windows")]
+    {
+        use std::fs;
         // create idle for Windows
-        let idle = path.join("Scripts/idle.bat");
-        if let Ok(mut file) = File::create(idle) {
-            let _ = file.write(b"@call %~dp0python.exe -m idlelib %*");
-        }
+        let _ = fs::write(
+            path.join("Scripts\\idle.bat"),
+            b"@call %~dp0python.exe -m idlelib %*",
+        );
     }
 }
