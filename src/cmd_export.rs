@@ -2,7 +2,7 @@ use crate::consts::PY_BIN_DIR;
 use crate::get_venv_path;
 use crate::utils::is_valid_env;
 use std::fs::read_dir;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Env {
@@ -51,7 +51,7 @@ fn export_library() -> Option<String> {
         "\n"
     };
 
-    let mut vec = vec![];
+    let mut children = vec![];
     for path in paths {
         let Ok(dir) = path else {
             continue;
@@ -64,7 +64,19 @@ fn export_library() -> Option<String> {
             continue;
         };
         let pip = path.join(PY_BIN_DIR).join("pip");
-        let Ok(output) = Command::new(pip).arg("freeze").output() else {
+        let Ok(child) = Command::new(pip)
+            .arg("freeze")
+            .stdout(Stdio::piped())
+            .spawn()
+        else {
+            continue;
+        };
+        children.push((name, child));
+    }
+
+    let mut vec = vec![];
+    for (name, child) in children {
+        let Ok(output) = child.wait_with_output() else {
             continue;
         };
         let Ok(output) = String::from_utf8(output.stdout) else {
@@ -75,7 +87,6 @@ fn export_library() -> Option<String> {
             .split(sep)
             .map(|s| s.to_string())
             .collect();
-        // println!("{}={:#?}", name, output);
         vec.push(Env { name, libs: output });
     }
     // dbg!(&vec);

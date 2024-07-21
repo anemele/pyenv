@@ -20,15 +20,12 @@ pub fn exec(manifest: String) {
     // dbg!(&t);
 
     let venv_path = get_venv_path();
-    let mut children = vec![];
     for env in t.env {
         crate::cmd_add::exec(&env.name, None, false);
         let pip = venv_path.join(env.name).join(PY_BIN_DIR).join("pip");
-        let child = Command::new(pip).arg("install").args(env.libs).spawn();
-        children.push(child);
-    }
-
-    for child in children {
-        let _ = child.and_then(|mut c| c.wait());
+        let Ok(child) = Command::new(pip).arg("install").args(env.libs).spawn() else {
+            continue;
+        };
+        let _ = child.wait_with_output();
     }
 }
