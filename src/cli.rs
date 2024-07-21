@@ -8,7 +8,7 @@ author,
 about = "Python Virtual env Manager",
 long_about = None,
 )]
-pub(crate) enum Cli {
+pub enum Cli {
     /// Create a new env
     Add {
         #[arg(help = "env name")]
@@ -39,5 +39,14 @@ pub(crate) enum Cli {
     Use {
         #[arg(help = "env name")]
         name: String,
+    },
+
+    /// Export existing envs to a manifest file
+    Export,
+
+    /// Import/Load envs from a manifest file
+    Import {
+        #[arg(help = "manifest file path")]
+        manifest: String,
     },
 }

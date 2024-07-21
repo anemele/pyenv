@@ -4,13 +4,13 @@ use crate::consts::PY_VENV_CFG;
 use homedir::get_my_home;
 use std::path::{Path, PathBuf};
 
-pub(crate) fn is_valid_env(path: impl AsRef<Path>) -> bool {
+pub fn is_valid_env(path: impl AsRef<Path>) -> bool {
     let path = path.as_ref();
 
     path.join(PY_VENV_CFG).exists() && path.join(PY_BIN_DIR).exists()
 }
 
-pub(crate) fn get_venv_path() -> Option<PathBuf> {
+pub(super) fn get_venv_path() -> Option<PathBuf> {
     let Ok(Some(home)) = get_my_home() else {
         return None;
     };

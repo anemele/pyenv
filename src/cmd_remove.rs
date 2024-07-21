@@ -1,9 +1,9 @@
+use crate::get_venv_path;
 use crate::utils::is_valid_env;
 use std::fs::remove_dir_all;
-use std::path::Path;
 
-pub(crate) fn exec(venv_path: impl AsRef<Path>, name: &str) {
-    let path = venv_path.as_ref().join(name);
+pub fn exec(name: &str) {
+    let path = get_venv_path().join(name);
     if !path.exists() {
         eprintln!("No env `{name}` exists.");
         return;

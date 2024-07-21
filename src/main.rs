@@ -1,7 +1,9 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 mod cli;
 mod cmd_add;
+mod cmd_export;
+mod cmd_import;
 mod cmd_list;
 mod cmd_remove;
 mod cmd_use;
@@ -10,28 +12,31 @@ mod utils;
 
 use clap::Parser;
 
-use crate::cli::Cli;
-use crate::utils::get_venv_path;
+use cli::Cli;
 
-fn main() {
-    let Some(venv_path) = get_venv_path() else {
-        eprintln!("failed to get HOME dir");
-        return;
+pub fn get_venv_path() -> PathBuf {
+    let Some(venv_path) = utils::get_venv_path() else {
+        panic!("failed to get HOME dir");
     };
 
     if !venv_path.exists() && fs::create_dir(&venv_path).is_err() {
-        eprintln!("failed to create dir: {}", venv_path.display());
-        return;
+        panic!("failed to create dir: {}", venv_path.display());
     }
 
+    venv_path
+}
+
+fn main() {
     match Cli::parse() {
         Cli::Add {
             name,
             version,
             force,
-        } => cmd_add::exec(venv_path, &name, version, force),
-        Cli::List => cmd_list::exec(venv_path),
-        Cli::Remove { name } => cmd_remove::exec(venv_path, &name),
-        Cli::Use { name } => cmd_use::exec(venv_path, &name),
+        } => cmd_add::exec(&name, version, force),
+        Cli::List => cmd_list::exec(),
+        Cli::Remove { name } => cmd_remove::exec(&name),
+        Cli::Use { name } => cmd_use::exec(&name),
+        Cli::Export => cmd_export::exec(),
+        Cli::Import { manifest: _ } => {}
     };
 }

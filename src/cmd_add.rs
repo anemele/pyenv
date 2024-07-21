@@ -1,10 +1,10 @@
-use std::path::Path;
+use crate::get_venv_path;
 use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub(crate) fn exec(venv_path: impl AsRef<Path>, name: &str, version: Option<String>, force: bool) {
-    let path = venv_path.as_ref().join(name);
+pub fn exec(name: &str, version: Option<String>, force: bool) {
+    let path = get_venv_path().join(name);
 
     if path.is_file() || (path.is_dir() && !force) {
         eprintln!("Env with the same name `{name}` exists.");

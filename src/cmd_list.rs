@@ -1,10 +1,12 @@
+use crate::get_venv_path;
 use crate::utils::is_valid_env;
 use std::fs::read_dir;
-use std::path::Path;
 
-pub(crate) fn exec(venv_path: impl AsRef<Path>) {
+pub fn exec() {
+    let venv_path = get_venv_path();
+
     let Ok(paths) = read_dir(&venv_path) else {
-        eprintln!("failed to read dir: {}", venv_path.as_ref().display());
+        eprintln!("failed to read dir: {}", venv_path.display());
         return;
     };
 
