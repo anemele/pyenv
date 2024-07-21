@@ -4,9 +4,11 @@ use crate::{consts::PY_BIN_DIR, get_venv_path, manifest::EnvManifest};
 
 fn read_manifest(manifest: &str) -> Option<EnvManifest> {
     let Ok(s) = std::fs::read_to_string(&manifest) else {
+        eprintln!("failed to read manifest file: {}", manifest);
         return None;
     };
     let Ok(t) = toml::from_str(&s) else {
+        eprintln!("failed to load manifest");
         return None;
     };
 
