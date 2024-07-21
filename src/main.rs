@@ -8,6 +8,7 @@ mod cmd_list;
 mod cmd_remove;
 mod cmd_use;
 mod consts;
+mod manifest;
 mod utils;
 
 use clap::Parser;

@@ -1,19 +1,9 @@
 use crate::consts::PY_BIN_DIR;
 use crate::get_venv_path;
+use crate::manifest::{Env, EnvManifest};
 use crate::utils::is_valid_env;
 use std::fs::read_dir;
 use std::process::{Command, Stdio};
-
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct Env {
-    pub name: String,
-    pub libs: Vec<String>,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct EnvManifest {
-    pub env: Vec<Env>,
-}
 
 const PREFIX: &str = "pyvm_manifest";
 
@@ -51,7 +41,7 @@ fn export_library() -> Option<String> {
         "\n"
     };
 
-    let mut children = vec![];
+    let mut pipe = vec![];
     for path in paths {
         let Ok(dir) = path else {
             continue;
@@ -63,20 +53,38 @@ fn export_library() -> Option<String> {
         let Ok(name) = dir.file_name().into_string() else {
             continue;
         };
+
+        let py = path.join(PY_BIN_DIR).join("python");
+        let Ok(child1) = Command::new(py)
+            .arg("--version")
+            .stdout(Stdio::piped())
+            .spawn()
+        else {
+            continue;
+        };
         let pip = path.join(PY_BIN_DIR).join("pip");
-        let Ok(child) = Command::new(pip)
+        let Ok(child2) = Command::new(pip)
             .arg("freeze")
             .stdout(Stdio::piped())
             .spawn()
         else {
             continue;
         };
-        children.push((name, child));
+        pipe.push((name, child1, child2));
     }
 
     let mut vec = vec![];
-    for (name, child) in children {
-        let Ok(output) = child.wait_with_output() else {
+    for (name, child1, child2) in pipe {
+        let Ok(output) = child1.wait_with_output() else {
+            continue;
+        };
+        let Ok(output) = String::from_utf8(output.stdout) else {
+            continue;
+        };
+        let Some(ver) = output.strip_prefix("Python") else {
+            continue;
+        };
+        let Ok(output) = child2.wait_with_output() else {
             continue;
         };
         let Ok(output) = String::from_utf8(output.stdout) else {
@@ -87,7 +95,11 @@ fn export_library() -> Option<String> {
             .split(sep)
             .map(|s| s.to_string())
             .collect();
-        vec.push(Env { name, libs: output });
+        vec.push(Env {
+            name,
+            ver: ver.trim().to_string(),
+            libs: output,
+        });
     }
     // dbg!(&vec);
 
