@@ -37,6 +37,6 @@ fn main() {
         Cli::Remove { name } => cmd_remove::exec(&name),
         Cli::Use { name } => cmd_use::exec(&name),
         Cli::Export { output } => cmd_export::exec(output),
-        Cli::Import { manifest: _ } => {}
+        Cli::Import { manifest } => cmd_import::exec(manifest),
     };
 }

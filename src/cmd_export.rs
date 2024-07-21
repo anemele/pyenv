@@ -7,7 +7,7 @@ use std::process::Command;
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct Env {
     pub name: String,
-    pub libs: String,
+    pub libs: Vec<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
@@ -70,7 +70,11 @@ fn export_library() -> Option<String> {
         let Ok(output) = String::from_utf8(output.stdout) else {
             continue;
         };
-        let output = output.trim_end().replace(sep, " ");
+        let output = output
+            .trim_end()
+            .split(sep)
+            .map(|s| s.to_string())
+            .collect();
         // println!("{}={:#?}", name, output);
         vec.push(Env { name, libs: output });
     }
