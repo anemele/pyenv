@@ -22,14 +22,14 @@ fn export_filename() -> String {
     format!("{PREFIX}_{now}.toml")
 }
 
-pub fn exec() {
+pub fn exec(output: Option<String>) {
     let Some(s) = export_library() else {
         eprintln!("failed to export envs");
         return;
     };
-    let filename = export_filename();
-    if std::fs::write(&filename, s).is_ok() {
-        println!("manifest has been written at {}", filename);
+    let outpath = output.unwrap_or(export_filename());
+    if std::fs::write(&outpath, s).is_ok() {
+        println!("manifest has been written at {}", outpath);
     } else {
         eprintln!("failed to write manifest.")
     };

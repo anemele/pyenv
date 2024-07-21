@@ -42,7 +42,10 @@ pub enum Cli {
     },
 
     /// Export existing envs to a manifest file
-    Export,
+    Export {
+        #[arg(short, long)]
+        output: Option<String>,
+    },
 
     /// Import/Load envs from a manifest file
     Import {
