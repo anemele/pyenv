@@ -17,9 +17,10 @@ pub fn exec(name: &str) {
     #[cfg(target_family = "windows")]
     {
         use std::process::Command;
-        if let Err(e) = Command::new("cmd")
-            .arg("/c")
-            .arg("start cmd /k")
+        if let Err(e) = Command::new("cmd.exe")
+            .arg("/k")
+            //.arg("/c")
+            //.arg("start cmd /k")
             .arg(path.join("Scripts/activate.bat"))
             .status()
         {
