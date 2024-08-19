@@ -18,3 +18,4 @@ There are four subcommands to operate the envs
 - `list` , alias `ls` , list all envs
 - `remove` , alias `rm` , remove an existing env
 - `use` , activate an existing env
+- `export/import` , migrate envs
