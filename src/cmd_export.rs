@@ -86,15 +86,18 @@ fn export_library() -> anyhow::Result<String> {
         let Ok(output) = String::from_utf8(output.stdout) else {
             continue;
         };
-        let output = output
-            .trim_end()
-            .split(sep)
-            .map(|s| s.to_string())
-            .collect();
+        let output = output.trim();
+        // dbg!(&output);
+
+        let libs = if output == "" {
+            vec![]
+        } else {
+            output.split(sep).map(|s| s.to_string()).collect()
+        };
         vec.push(Env {
             name,
             ver: ver.trim().to_string(),
-            libs: output,
+            libs,
         });
     }
     // dbg!(&vec);

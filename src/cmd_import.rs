@@ -20,6 +20,7 @@ pub fn exec(manifest: &str) -> anyhow::Result<()> {
             continue;
         };
         let pip = venv_path.join(env.name).join(PY_BIN_DIR).join("pip");
+        // dbg!(&env.libs);
         if env.libs.len() == 0 {
             continue;
         }
