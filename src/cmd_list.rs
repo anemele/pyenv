@@ -1,17 +1,12 @@
 use crate::get_venv_path;
 use crate::utils::is_valid_env;
-use std::fs::read_dir;
+use std::fs;
 
-pub fn exec() {
-    let venv_path = get_venv_path();
-
-    let Ok(paths) = read_dir(&venv_path) else {
-        eprintln!("failed to read dir: {}", venv_path.display());
-        return;
-    };
+pub fn exec() -> anyhow::Result<()> {
+    let venv_path = get_venv_path()?;
 
     println!("Available envs:");
-    for path in paths {
+    for path in fs::read_dir(&venv_path)? {
         let Ok(dir) = path else {
             continue;
         };
@@ -22,4 +17,6 @@ pub fn exec() {
             println!("  {}", name)
         }
     }
+
+    Ok(())
 }

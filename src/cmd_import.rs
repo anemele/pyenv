@@ -1,36 +1,35 @@
-use std::process::Command;
+use std::{fs, process::Command};
 
 use crate::{consts::PY_BIN_DIR, get_venv_path, manifest::EnvManifest};
 
-fn read_manifest(manifest: &str) -> Option<EnvManifest> {
-    let Ok(s) = std::fs::read_to_string(&manifest) else {
-        eprintln!("failed to read manifest file: {}", manifest);
-        return None;
-    };
-    let Ok(t) = toml::from_str(&s) else {
-        eprintln!("failed to load manifest");
-        return None;
-    };
+fn read_manifest(manifest: &str) -> anyhow::Result<EnvManifest> {
+    let s = fs::read_to_string(&manifest)?;
+    let t = toml::from_str(&s)?;
 
-    Some(t)
+    Ok(t)
 }
 
-pub fn exec(manifest: String) {
-    let Some(table) = read_manifest(&manifest) else {
-        return;
-    };
+pub fn exec(manifest: &str) -> anyhow::Result<()> {
+    let table = read_manifest(&manifest)?;
     // dbg!(&t);
 
-    let venv_path = get_venv_path();
+    let venv_path = get_venv_path()?;
     let mut children = vec![];
     for env in table.env {
-        crate::cmd_add::exec(&env.name, Some(env.ver), false);
+        if crate::cmd_add::exec(&env.name, Some(env.ver), false).is_err() {
+            continue;
+        };
         let pip = venv_path.join(env.name).join(PY_BIN_DIR).join("pip");
+        if env.libs.len() == 0 {
+            continue;
+        }
         let child = Command::new(pip).arg("install").args(env.libs).spawn();
         children.push(child);
     }
 
     for child in children {
-        let _ = child.and_then(|mut c| c.wait());
+        child.and_then(|mut c| c.wait())?;
     }
+
+    Ok(())
 }

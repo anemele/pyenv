@@ -1,27 +1,27 @@
+use anyhow::anyhow;
+
 use crate::get_venv_path;
 use crate::utils::is_valid_env;
-use std::fs::remove_dir_all;
+use std::fs;
 
-pub fn exec(name: &str) {
-    let path = get_venv_path().join(name);
+pub fn exec(name: &str) -> anyhow::Result<()> {
+    let path = get_venv_path()?.join(name);
     if !path.exists() {
-        eprintln!("No env `{name}` exists.");
-        return;
+        return Err(anyhow!("No env `{name}` exists."));
     }
 
     if path.is_file() {
-        eprintln!("File with the same name `{name}` exists.");
-        return;
+        return Err(anyhow!("File with the same name `{name}` exists."));
     }
 
     if !is_valid_env(&path) {
-        eprintln!("Invalid env `{name}`");
-        return;
+        return Err(anyhow!("Invalid env `{name}`"));
     }
 
-    if remove_dir_all(path).is_ok() {
-        println!("Removed env `{name}`")
-    } else {
-        println!("Failed to remove `{name}`")
+    if fs::remove_dir_all(path).is_err() {
+        return Err(anyhow!("Failed to remove `{name}`"));
     }
+
+    println!("Removed env `{name}`");
+    Ok(())
 }

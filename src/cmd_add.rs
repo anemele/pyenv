@@ -1,14 +1,15 @@
+use anyhow::anyhow;
+
 use crate::get_venv_path;
 use std::process::{Command, Stdio};
 
 const VENV_EXE: &str = "virtualenv";
 
-pub fn exec(name: &str, version: Option<String>, force: bool) {
-    let path = get_venv_path().join(name);
+pub fn exec(name: &str, version: Option<String>, force: bool) -> anyhow::Result<()> {
+    let path = get_venv_path()?.join(name);
 
     if path.is_file() || (path.is_dir() && !force) {
-        eprintln!("Env with the same name `{name}` exists.");
-        return;
+        return Err(anyhow!("Env with the same name `{name}` exists."));
     }
 
     let mut cmd = &mut Command::new(VENV_EXE);
@@ -25,20 +26,21 @@ pub fn exec(name: &str, version: Option<String>, force: bool) {
         .stderr(Stdio::inherit())
         .output()
     {
-        eprintln!(
+        return Err(anyhow!(
             "Failed to create env `{name}`: {e}\nMaybe `{}` is not in PATH?",
             VENV_EXE
-        );
-        return;
+        ));
     };
 
     #[cfg(target_family = "windows")]
     {
         use std::fs;
         // create idle for Windows
-        let _ = fs::write(
+        fs::write(
             path.join("Scripts\\idle.bat"),
             b"@call %~dp0python.exe -m idlelib %*",
-        );
+        )?;
     }
+
+    Ok(())
 }

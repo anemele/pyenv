@@ -1,37 +1,33 @@
+use anyhow::anyhow;
+
 use crate::consts::PY_BIN_DIR;
 use crate::get_venv_path;
 use crate::manifest::{Env, EnvManifest};
 use crate::utils::is_valid_env;
-use std::fs::read_dir;
+
+use std::fs::{self, read_dir};
 use std::process::{Command, Stdio};
 
-const PREFIX: &str = "pyvm_manifest";
-
+#[inline]
 fn export_filename() -> String {
+    const PREFIX: &str = "pyvm_manifest";
     let now = chrono::Local::now().date_naive();
     format!("{PREFIX}_{now}.toml")
 }
 
-pub fn exec(output: Option<String>) {
-    let Some(s) = export_library() else {
-        eprintln!("failed to export envs");
-        return;
-    };
+pub fn exec(output: Option<String>) -> anyhow::Result<()> {
+    let s = export_library()?;
     let outpath = output.unwrap_or(export_filename());
-    if std::fs::write(&outpath, s).is_ok() {
-        println!("manifest has been written at {}", outpath);
-    } else {
-        eprintln!("failed to write manifest.")
-    };
+    if fs::write(&outpath, s).is_err() {
+        return Err(anyhow!("failed to write manifest."));
+    }
+
+    println!("manifest has been written at {}", outpath);
+    Ok(())
 }
 
-fn export_library() -> Option<String> {
-    let venv_path = get_venv_path();
-
-    let Ok(paths) = read_dir(&venv_path) else {
-        eprintln!("failed to read dir: {}", venv_path.display());
-        return None;
-    };
+fn export_library() -> anyhow::Result<String> {
+    let venv_path = get_venv_path()?;
 
     let sep = if cfg!(windows) {
         "\r\n"
@@ -42,7 +38,7 @@ fn export_library() -> Option<String> {
     };
 
     let mut pipe = vec![];
-    for path in paths {
+    for path in read_dir(&venv_path)? {
         let Ok(dir) = path else {
             continue;
         };
@@ -103,11 +99,6 @@ fn export_library() -> Option<String> {
     }
     // dbg!(&vec);
 
-    match toml::to_string(&EnvManifest { env: vec }) {
-        Ok(s) => Some(s),
-        Err(e) => {
-            eprintln!("{}", e);
-            None
-        }
-    }
+    let s = toml::to_string(&EnvManifest { env: vec })?;
+    Ok(s)
 }
