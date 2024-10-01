@@ -17,7 +17,7 @@ jobs:
         include:
           - label: x86_64-pc-windows-msvc-portable
             target: x86_64-pc-windows-msvc
-            bins: --bin pvm
+            bins: --bin pyvm
             os: windows
             features:
             rustflags:
@@ -43,7 +43,7 @@ jobs:
       with:
         name: ${{matrix.label}}
         path: |
-          target/${{matrix.target}}/release/pvm.exe
+          target/${{matrix.target}}/release/pyvm.exe
 
   test:
     runs-on: ${{ matrix.os }}-latest
@@ -93,7 +93,7 @@ jobs:
       run: |
         mkdir public
         cd target/x86_64-pc-windows-msvc-portable
-        zip -r ../../public/pvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip .
+        zip -r ../../public/pyvm-${{ env.VERSION }}-x86_64-pc-windows-msvc-portable.zip .
         cd ../..
     - uses: actions/upload-artifact@v3
       with:

@@ -1,5 +1,3 @@
-use anyhow::anyhow;
-
 use crate::consts::PY_BIN_DIR;
 use crate::get_venv_path;
 use crate::manifest::{Env, EnvManifest};
@@ -19,7 +17,7 @@ pub fn exec(output: Option<String>) -> anyhow::Result<()> {
     let s = export_library()?;
     let outpath = output.unwrap_or(export_filename());
     if fs::write(&outpath, s).is_err() {
-        return Err(anyhow!("failed to write manifest."));
+        anyhow::bail!("failed to write manifest.");
     }
 
     println!("manifest has been written at {}", outpath);
@@ -29,13 +27,7 @@ pub fn exec(output: Option<String>) -> anyhow::Result<()> {
 fn export_library() -> anyhow::Result<String> {
     let venv_path = get_venv_path()?;
 
-    let sep = if cfg!(windows) {
-        "\r\n"
-    } else if cfg!(darwin) {
-        "\r"
-    } else {
-        "\n"
-    };
+    let sep = if cfg!(windows) { "\r\n" } else { "\n" };
 
     let mut pipe = vec![];
     for path in read_dir(&venv_path)? {

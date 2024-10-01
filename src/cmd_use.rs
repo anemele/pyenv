@@ -1,5 +1,3 @@
-use anyhow::anyhow;
-
 use crate::get_venv_path;
 use crate::utils::is_valid_env;
 
@@ -7,11 +5,11 @@ pub fn exec(name: &str) -> anyhow::Result<()> {
     let path = get_venv_path()?.join(name);
 
     if !path.exists() {
-        return Err(anyhow!("No env `{name}` exists."));
+        anyhow::bail!("No env `{name}` exists.");
     }
 
     if !is_valid_env(&path) {
-        return Err(anyhow!("Invalid env `{name}`"));
+        anyhow::bail!("Invalid env `{name}`");
     }
 
     #[cfg(target_family = "windows")]
@@ -24,7 +22,7 @@ pub fn exec(name: &str) -> anyhow::Result<()> {
             .arg(path.join("Scripts/activate.bat"))
             .status()
         {
-            return Err(anyhow!("Failed to activate env `{name}`:\n{e}"));
+            anyhow::bail!("Failed to activate env `{name}`:\n{e}");
         }
     }
 
