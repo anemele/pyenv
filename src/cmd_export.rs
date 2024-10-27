@@ -81,7 +81,7 @@ fn export_library() -> anyhow::Result<String> {
         let output = output.trim();
         // dbg!(&output);
 
-        let libs = if output == "" {
+        let libs = if output.is_empty() {
             vec![]
         } else {
             output.split(sep).map(|s| s.to_string()).collect()
