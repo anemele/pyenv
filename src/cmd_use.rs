@@ -14,23 +14,15 @@ pub fn exec(name: &str) -> anyhow::Result<()> {
 
     #[cfg(target_family = "windows")]
     {
-        use std::process::Command;
-        if let Err(e) = Command::new("cmd.exe")
-            .arg("/k")
-            //.arg("/c")
-            //.arg("start cmd /k")
-            .arg(path.join("Scripts/activate.bat"))
-            .status()
-        {
-            anyhow::bail!("Failed to activate env `{name}`:\n{e}");
-        }
+        let activator = path.join("Scripts\\activate");
+        println!("{}", activator.display());
     }
 
     #[cfg(target_family = "unix")]
     {
         // eprintln!("NOT support on *nix");
         // eprintln!("use `source` command instead");
-        println!("source {}/{}/bin/activate", path.as_ref().display(), name)
+        println!("source {}/{}/bin/activate", path.as_ref().display(), name);
     }
 
     Ok(())
