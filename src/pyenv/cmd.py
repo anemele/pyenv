@@ -1,6 +1,6 @@
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -60,8 +60,8 @@ def cmd_remove(name: str):
 @dataclass
 class Env:
     name: str
-    python: str
-    libs: list[str]
+    python: Optional[str] = field(default=None)
+    libs: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -81,7 +81,7 @@ def cmd_export(path: Optional[Path] = None):
         cfg_text = (env_path / PY_VENV_CFG).read_text()
         s = re.search(r"version_info = (\d\.\d{1,2})", cfg_text)
         if s is None:
-            python = "unknown"
+            python = None
         else:
             python = s.group(1)
 
@@ -118,3 +118,5 @@ def cmd_import(path: Optional[Path] = None):
         )
         if res.returncode != 0:
             print(f"Failed to install packages for {env.name}: {res.stderr}")
+        else:
+            print(f"Virtual environment {env.name} imported.")
