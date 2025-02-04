@@ -1,0 +1,25 @@
+[project]
+name = "pyenv"
+version = "0.5.3"
+description = "Python virtual environment manager"
+readme = "README.md"
+authors = [{ name = "Jason Swift", email = "anemele@outlook.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1.8",
+    "virtualenv>=20.29.1",
+]
+
+[project.scripts]
+pyenv = "pyenv.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+[tool.ruff]
+lint.select = ["I"]
+target-version = "py312"
