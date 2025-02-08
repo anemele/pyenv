@@ -87,9 +87,18 @@ def cmd_export(path: Optional[Path] = None):
 
         lib_path = env_path / "lib"
         libs = list[str]()
-        for lib in lib_path.glob("**/*.dist-info"):
-            tmp = lib.name.removesuffix(".dist-info")
-            name, version = tmp.rsplit("-", 1)
+        for libmeta in lib_path.glob("**/*.dist-info/METADATA"):
+            if not libmeta.is_file():
+                continue
+
+            metatext = libmeta.read_text(encoding="utf-8")
+            gs = re.search(r"Name: ([\w-]+)\nVersion: ([\w\.]+)\n", metatext)
+            if gs is None:
+                # shoud not happen
+                continue
+
+            name = gs.group(1)
+            version = gs.group(2)
             libs.append(f"{name}=={version}")
 
         env = Env(name=env_path.name, python=python, libs=libs)
