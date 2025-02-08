@@ -1,15 +1,11 @@
 [project]
 name = "pyenv"
-version = "0.5.3"
+version = "0.6.0"
 description = "Python virtual environment manager"
 readme = "README.md"
 authors = [{ name = "Jason Swift", email = "anemele@outlook.com" }]
 requires-python = ">=3.12"
-dependencies = [
-    "click>=8.1.8",
-    "mashumaro[toml]>=3.15",
-    "virtualenv>=20.29.1",
-]
+dependencies = ["click>=8.1.8", "mashumaro[toml]>=3.15", "virtualenv>=20.29.1"]
 
 [project.scripts]
 pyenv = "pyenv.cli:main"

@@ -68,7 +68,7 @@ wheels = [
 
 [[package]]
 name = "pyenv"
-version = "0.5.3"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
