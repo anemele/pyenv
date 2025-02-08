@@ -45,13 +45,18 @@ def cli_export(name: Optional[str] = None, output: Optional[Path] = None):
 
 @cli.command(name="import")
 @click.option("-i", "--input", type=Path, help="Input file")
-def cli_import(input: Optional[Path] = None):
+@click.option("-s", "--sync", type=str, help="env to sync")
+def cli_import(input: Optional[Path] = None, sync: Optional[str] = None):
     """Import environments from a file"""
-    cmd_import(input)
+    cmd_import(input, sync)
 
 
 def main():
-    cli()
+    try:
+        cli()
+    except Exception as e:
+        print(f"Error: {e}")
+        exit(1)
 
 
 if __name__ == "__main__":

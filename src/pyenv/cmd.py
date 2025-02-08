@@ -120,7 +120,39 @@ def cmd_export(name: Optional[str] = None, path: Optional[Path] = None):
     print(f"Virtual environments exported to {path}.")
 
 
-def cmd_import(path: Optional[Path] = None):
+def _sync_libs(env_real: Env, env_to_sync: Env) -> tuple[set[str], set[str]]:
+    libs_real = set(env_real.libs)
+    libs_to_sync = set(env_to_sync.libs)
+
+    to_uninstall = libs_real - libs_to_sync
+    to_install = libs_to_sync - libs_real
+
+    return to_uninstall, to_install
+
+
+def _cmd_sync_env(env_path: Path, env_to_sync: Env) -> bool:
+    env_real = _get_env(env_path)
+    to_uninstall, to_install = _sync_libs(env_real, env_to_sync)
+
+    pip = PY_ENV_PATH / env_real.name / PY_BIN_DIR / "python"
+    pip = f"{pip} -m pip"
+    res = True
+    if len(to_uninstall) > 0:
+        res_uni = subprocess.run(
+            f"{pip} uninstall -y {' '.join(to_uninstall)}",
+            capture_output=True,
+        )
+        res = res and res_uni.returncode == 0
+    if len(to_install) > 0:
+        res_ins = subprocess.run(
+            f"{pip} install {' '.join(to_install)}",
+            capture_output=True,
+        )
+        res = res and res_ins.returncode == 0
+    return res
+
+
+def cmd_import(path: Optional[Path] = None, sync_name: Optional[str] = None):
     if path is None:
         path = ENV_FILE
     if not path.exists():
@@ -128,13 +160,32 @@ def cmd_import(path: Optional[Path] = None):
         return
 
     envs = Envs.from_toml(path.read_text())
+
+    if sync_name is not None:
+        env_to_sync = None
+        for env in envs.env:
+            if env.name == sync_name:
+                env_to_sync = env
+                break
+        else:
+            print(f"Virtual environment {sync_name} not found in {path}.")
+
+        if env_to_sync is not None:
+            envs.env.remove(env_to_sync)
+            res = _cmd_sync_env(PY_ENV_PATH / sync_name, env_to_sync)
+            if res:
+                print(f"Virtual environment {sync_name} synced.")
+            else:
+                print(f"Failed to sync virtual environment {sync_name}.")
+
     for env in envs.env:
         if not cmd_add(env.name, python=env.python):
             continue
 
-        pip_exe = PY_ENV_PATH / env.name / PY_BIN_DIR / "pip.exe"
+        pip = PY_ENV_PATH / env.name / PY_BIN_DIR / "python"
+        pip = f"{pip} -m pip"
         res = subprocess.run(
-            f"{pip_exe} install {' '.join(env.libs)}",
+            f"{pip} install {' '.join(env.libs)}",
             capture_output=True,
         )
         if res.returncode != 0:
