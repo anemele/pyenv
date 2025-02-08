@@ -76,18 +76,10 @@ def cmd_export(path: Optional[Path] = None):
     if path is None:
         path = ENV_FILE
 
-    envs = list[Env]()
-    for env_path in _list_env_paths():
-        cfg_text = (env_path / PY_VENV_CFG).read_text()
-        s = re.search(r"version_info = (\d\.\d{1,2})", cfg_text)
-        if s is None:
-            python = None
-        else:
-            python = s.group(1)
-
-        lib_path = env_path / "lib"
+    def get_libs(env_path: Path) -> list[str]:
         libs = list[str]()
-        for libmeta in lib_path.glob("**/*.dist-info/METADATA"):
+        meta_it = env_path.glob("lib/site-packages/*.dist-info/METADATA")
+        for libmeta in meta_it:
             if not libmeta.is_file():
                 continue
 
@@ -100,6 +92,17 @@ def cmd_export(path: Optional[Path] = None):
             name = gs.group(1)
             version = gs.group(2)
             libs.append(f"{name}=={version}")
+        return libs
+
+    envs = list[Env]()
+    for env_path in _list_env_paths():
+        cfg_text = (env_path / PY_VENV_CFG).read_text()
+        s = re.search(r"version_info = (\d\.\d{1,2})", cfg_text)
+        if s is None:
+            python = None
+        else:
+            python = s.group(1)
+        libs = get_libs(env_path)
 
         env = Env(name=env_path.name, python=python, libs=libs)
         envs.append(env)
