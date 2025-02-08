@@ -36,10 +36,11 @@ def cli_remove(name: str):
 
 
 @cli.command(name="export")
+@click.argument("name", required=False)
 @click.option("-o", "--output", type=Path, help="Output file")
-def cli_export(output: Optional[Path] = None):
+def cli_export(name: Optional[str] = None, output: Optional[Path] = None):
     """Export all environments to a file"""
-    cmd_export(output)
+    cmd_export(name, output)
 
 
 @cli.command(name="import")

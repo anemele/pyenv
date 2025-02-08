@@ -10,7 +10,7 @@ from virtualenv.run import cli_run
 from .consts import PY_BIN_DIR, PY_ENV_PATH, PY_VENV_CFG
 
 
-def env_exists(env_path: Path) -> bool:
+def _env_exists(env_path: Path) -> bool:
     return (
         env_path.exists()
         and (env_path / PY_BIN_DIR).exists()
@@ -20,7 +20,7 @@ def env_exists(env_path: Path) -> bool:
 
 def cmd_add(name: str, python: Optional[str] = None) -> bool:
     env_path = PY_ENV_PATH / name
-    if env_exists(env_path):
+    if _env_exists(env_path):
         print(f"Virtual environment {name} already exists.")
         return False
 
@@ -35,7 +35,7 @@ def cmd_add(name: str, python: Optional[str] = None) -> bool:
 
 def _list_env_paths():
     for env_path in PY_ENV_PATH.iterdir():
-        if env_path.is_dir() and env_exists(env_path):
+        if env_path.is_dir() and _env_exists(env_path):
             yield env_path
 
 
@@ -47,7 +47,7 @@ def cmd_list():
 
 def cmd_remove(name: str):
     env_path = PY_ENV_PATH / name
-    if not env_exists(env_path):
+    if not _env_exists(env_path):
         print(f"Virtual environment {name} does not exist.")
         return
 
@@ -69,45 +69,54 @@ class Envs(DataClassTOMLMixin):
     env: list[Env]
 
 
+def _get_env(env_path: Path) -> Env:
+    cfg_text = (env_path / PY_VENV_CFG).read_text()
+    s = re.search(r"version_info = (\d\.\d{1,2})", cfg_text)
+    if s is None:
+        python = None
+    else:
+        python = s.group(1)
+
+    libs = list[str]()
+    meta_it = env_path.glob("lib/site-packages/*.dist-info/METADATA")
+    for libmeta in meta_it:
+        if not libmeta.is_file():
+            continue
+
+        metatext = libmeta.read_text(encoding="utf-8")
+        gs = re.search(r"Name: ([\w-]+)\nVersion: ([\w\.]+)\n", metatext)
+        if gs is None:
+            # shoud not happen
+            continue
+
+        name = gs.group(1)
+        version = gs.group(2)
+        libs.append(f"{name}=={version}")
+
+    env = Env(name=env_path.name, python=python, libs=libs)
+    return env
+
+
 ENV_FILE = PY_ENV_PATH / ".envs.toml"
 
 
-def cmd_export(path: Optional[Path] = None):
+def cmd_export(name: Optional[str] = None, path: Optional[Path] = None):
+    if name is None:
+        env_paths = _list_env_paths()
+    else:
+        env_paths = [PY_ENV_PATH / name]
+
+    envs = map(_get_env, env_paths)
+    envs = Envs(env=list(envs))
+
     if path is None:
         path = ENV_FILE
+        old_envs = Envs.from_toml(path.read_text())
+        envs_mapping = {e.name: e for e in old_envs.env}
+        envs_mapping.update({e.name: e for e in envs.env})
+        envs.env[:] = list(envs_mapping.values())
 
-    def get_libs(env_path: Path) -> list[str]:
-        libs = list[str]()
-        meta_it = env_path.glob("lib/site-packages/*.dist-info/METADATA")
-        for libmeta in meta_it:
-            if not libmeta.is_file():
-                continue
-
-            metatext = libmeta.read_text(encoding="utf-8")
-            gs = re.search(r"Name: ([\w-]+)\nVersion: ([\w\.]+)\n", metatext)
-            if gs is None:
-                # shoud not happen
-                continue
-
-            name = gs.group(1)
-            version = gs.group(2)
-            libs.append(f"{name}=={version}")
-        return libs
-
-    envs = list[Env]()
-    for env_path in _list_env_paths():
-        cfg_text = (env_path / PY_VENV_CFG).read_text()
-        s = re.search(r"version_info = (\d\.\d{1,2})", cfg_text)
-        if s is None:
-            python = None
-        else:
-            python = s.group(1)
-        libs = get_libs(env_path)
-
-        env = Env(name=env_path.name, python=python, libs=libs)
-        envs.append(env)
-
-    path.write_text(Envs(env=envs).to_toml())
+    path.write_text(envs.to_toml())
     print(f"Virtual environments exported to {path}.")
 
 
