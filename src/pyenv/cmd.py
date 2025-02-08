@@ -112,7 +112,8 @@ def cmd_export(name: Optional[str] = None, path: Optional[Path] = None):
     if path is None:
         path = ENV_FILE
         old_envs = Envs.from_toml(path.read_text())
-        envs_mapping = {e.name: e for e in old_envs.env}
+        has_env = {env.name for env in env_paths}
+        envs_mapping = {e.name: e for e in old_envs.env if e.name in has_env}
         envs_mapping.update({e.name: e for e in envs.env})
         envs.env[:] = list(envs_mapping.values())
 
