@@ -4,7 +4,7 @@ from typing import Optional
 
 import click
 
-from .cmd import cmd_add, cmd_export, cmd_import, cmd_list, cmd_remove, cmd_use
+from .cmd import cmd_add, cmd_export, cmd_import, cmd_list, cmd_remove
 
 
 class OrderedGroup(click.Group):
@@ -37,6 +37,7 @@ def cli_remove(name: str):
 
 
 if platform.system() == "Linux":
+    from .cmd import cmd_use
 
     @cli.command(name="use")
     @click.argument("name")
