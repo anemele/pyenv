@@ -1,3 +1,4 @@
+import platform
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -35,7 +36,7 @@ def cmd_add(name: str, python: Optional[str] = None) -> bool:
 
 def _list_env_paths():
     for env_path in PY_ENV_PATH.iterdir():
-        if env_path.is_dir() and _env_exists(env_path):
+        if _env_exists(env_path):
             yield env_path
 
 
@@ -55,6 +56,18 @@ def cmd_remove(name: str):
 
     shutil.rmtree(env_path)
     print(f"Virtual environment {name} removed.")
+
+
+if platform.system() == "Linux":
+
+    def cmd_use(name: str):
+        for env in _list_env_paths():
+            if env.name == name:
+                activate = env / PY_BIN_DIR / "activate"
+                print(f"source {activate}")
+                break
+        else:
+            print(f"do not found env: {name}")
 
 
 @dataclass
@@ -78,7 +91,7 @@ def _get_env(env_path: Path) -> Env:
         python = s.group(1)
 
     libs = list[str]()
-    meta_it = env_path.glob("lib/site-packages/*.dist-info/METADATA")
+    meta_it = env_path.glob("lib/*/site-packages/*.dist-info/METADATA")
     for libmeta in meta_it:
         if not libmeta.is_file():
             continue
@@ -111,6 +124,7 @@ def cmd_export(name: Optional[str] = None, path: Optional[Path] = None):
 
     if path is None:
         path = ENV_FILE
+    if path.exists():
         old_envs = Envs.from_toml(path.read_text())
         has_env = {env.name for env in env_paths}
         envs_mapping = {e.name: e for e in old_envs.env if e.name in has_env}
