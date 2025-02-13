@@ -1,10 +1,10 @@
-import platform
 from pathlib import Path
 from typing import Optional
 
 import click
 
 from .cmd import cmd_add, cmd_export, cmd_import, cmd_list, cmd_remove
+from .consts import IS_WINDOWS
 
 
 class OrderedGroup(click.Group):
@@ -36,7 +36,7 @@ def cli_remove(name: str):
     cmd_remove(name)
 
 
-if platform.system() == "Linux":
+if not IS_WINDOWS:
     from .cmd import cmd_use
 
     @cli.command(name="use")

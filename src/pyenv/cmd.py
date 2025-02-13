@@ -1,4 +1,3 @@
-import platform
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -8,7 +7,7 @@ from typing import Optional
 from mashumaro.mixins.toml import DataClassTOMLMixin
 from virtualenv.run import cli_run
 
-from .consts import PY_BIN_DIR, PY_ENV_PATH, PY_VENV_CFG
+from .consts import IS_WINDOWS, PY_BIN_DIR, PY_ENV_PATH, PY_VENV_CFG
 
 
 def _env_exists(env_path: Path) -> bool:
@@ -58,7 +57,7 @@ def cmd_remove(name: str):
     print(f"Virtual environment {name} removed.")
 
 
-if platform.system() == "Linux":
+if not IS_WINDOWS:
 
     def cmd_use(name: str):
         for env in _list_env_paths():
@@ -91,7 +90,11 @@ def _get_env(env_path: Path) -> Env:
         python = s.group(1)
 
     libs = list[str]()
-    meta_it = env_path.glob("lib/*/site-packages/*.dist-info/METADATA")
+    if IS_WINDOWS:
+        glob_pattern = "Lib/site-packages/*.dist-info/METADATA"
+    else:
+        glob_pattern = "lib/*/site-packages/*.dist-info/METADATA"
+    meta_it = env_path.glob(glob_pattern)
     for libmeta in meta_it:
         if not libmeta.is_file():
             continue
@@ -132,7 +135,7 @@ def cmd_export(name: Optional[str] = None, path: Optional[Path] = None):
         envs.env[:] = list(envs_mapping.values())
 
     path.write_text(envs.to_toml())
-    print(f"Virtual environments exported to {path}.")
+    print(f"Virtual environments exported to {path}")
 
 
 def _sync_libs(env_real: Env, env_to_sync: Env) -> tuple[set[str], set[str]]:

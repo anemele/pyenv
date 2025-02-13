@@ -18,5 +18,5 @@ build-backend = "hatchling.build"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 
 [tool.ruff]
-lint.select = ["I"]
+lint.extend-select = ["I", "F403", "F401"]
 target-version = "py312"
